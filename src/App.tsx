@@ -1,130 +1,136 @@
-import { useState, useEffect } from 'react';
-import { ProjectIdeaDisplay } from '@/components/ProjectIdeaDisplay';
-import { ActionButtons } from '@/components/ActionButtons';
-import { OpenAIService } from '@/lib/openai';
-import { StreamingState } from '@/types';
-import { Toaster } from '@/components/ui/toaster';
-import { toast } from '@/hooks/use-toast';
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { ActionButtons } from "@/components/ActionButtons";
+import { ProjectIdeaDisplay } from "@/components/ProjectIdeaDisplay";
+import { Toaster } from "@/components/ui/toaster";
+import { toast } from "@/hooks/use-toast";
+import { OpenAIService } from "@/lib/openai";
+import type { StreamingState } from "@/types";
 
 function App() {
-  const [projectIdea, setProjectIdea] = useState('');
-  const [streamingState, setStreamingState] = useState<StreamingState>({
-    isStreaming: false,
-    streamedText: '',
-    error: null,
-  });
-  const [isLoading, setIsLoading] = useState(false);
+	const [projectIdea, setProjectIdea] = useState("");
+	const [streamingState, setStreamingState] = useState<StreamingState>({
+		isStreaming: false,
+		streamedText: "",
+		error: null,
+	});
+	const [isLoading, setIsLoading] = useState(false);
 
-  const openaiService = new OpenAIService(import.meta.env.VITE_OPENAI_API_KEY);
+	const openaiService = useMemo(
+		() => new OpenAIService(import.meta.env.VITE_OPENAI_API_KEY),
+		[],
+	);
 
-  const generateProjectIdea = async () => {
-    if (!import.meta.env.VITE_OPENAI_API_KEY) {
-      toast({
-        title: "API Key Required",
-        description: "Please add your OpenAI API key to the environment variables.",
-        variant: "destructive",
-      });
-      return;
-    }
+	const generateProjectIdea = useCallback(async () => {
+		if (!import.meta.env.VITE_OPENAI_API_KEY) {
+			toast({
+				title: "API Key Required",
+				description:
+					"Please add your OpenAI API key to the environment variables.",
+				variant: "destructive",
+			});
+			return;
+		}
 
-    setIsLoading(true);
-    setStreamingState({
-      isStreaming: true,
-      streamedText: '',
-      error: null,
-    });
-    setProjectIdea('');
+		setIsLoading(true);
+		setStreamingState({
+			isStreaming: true,
+			streamedText: "",
+			error: null,
+		});
+		setProjectIdea("");
 
-    try {
-      const stream = await openaiService.generateProjectIdea();
-      const reader = stream.getReader();
-      let accumulatedText = '';
+		try {
+			const stream = await openaiService.generateProjectIdea();
+			const reader = stream.getReader();
+			let accumulatedText = "";
 
-      while (true) {
-        const { done, value } = await reader.read();
-        
-        if (done) {
-          setStreamingState(prev => ({
-            ...prev,
-            isStreaming: false,
-          }));
-          setProjectIdea(accumulatedText);
-          break;
-        }
+			while (true) {
+				const { done, value } = await reader.read();
 
-        accumulatedText += value;
-        setStreamingState(prev => ({
-          ...prev,
-          streamedText: accumulatedText,
-        }));
-      }
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-      setStreamingState({
-        isStreaming: false,
-        streamedText: '',
-        error: errorMessage,
-      });
-      toast({
-        title: "Generation Failed",
-        description: errorMessage,
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+				if (done) {
+					setStreamingState((prev) => ({
+						...prev,
+						isStreaming: false,
+					}));
+					setProjectIdea(accumulatedText);
+					break;
+				}
 
-  // Generate initial project idea on mount
-  useEffect(() => {
-    generateProjectIdea();
-  }, []);
+				accumulatedText += value;
+				setStreamingState((prev) => ({
+					...prev,
+					streamedText: accumulatedText,
+				}));
+			}
+		} catch (error) {
+			const errorMessage =
+				error instanceof Error ? error.message : "An unknown error occurred";
+			setStreamingState({
+				isStreaming: false,
+				streamedText: "",
+				error: errorMessage,
+			});
+			toast({
+				title: "Generation Failed",
+				description: errorMessage,
+				variant: "destructive",
+			});
+		} finally {
+			setIsLoading(false);
+		}
+	}, [openaiService]);
 
-  const currentContent = streamingState.isStreaming 
-    ? streamingState.streamedText 
-    : projectIdea;
+	// Generate initial project idea on mount
+	useEffect(() => {
+		generateProjectIdea();
+	}, [generateProjectIdea]);
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-12 px-4">
-      <div className="max-w-4xl mx-auto space-y-8">
-        {/* Header */}
-        <div className="text-center space-y-4">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 tracking-tight">
-            Project Idea Generator
-          </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-            Get inspired with AI-generated web development project ideas. 
-            Perfect for skill building, portfolio projects, or your next big venture.
-          </p>
-        </div>
+	const currentContent = streamingState.isStreaming
+		? streamingState.streamedText
+		: projectIdea;
 
-        {/* Main Content */}
-        <div className="space-y-8">
-          <div className="flex justify-center">
-            <ProjectIdeaDisplay
-              content={currentContent}
-              isStreaming={streamingState.isStreaming}
-              isLoading={isLoading}
-            />
-          </div>
+	return (
+		<div className="px-4 py-12 min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+			<div className="mx-auto space-y-8 max-w-4xl">
+				{/* Header */}
+				<div className="space-y-4 text-center">
+					<h1 className="text-4xl font-bold tracking-tight text-gray-900 md:text-5xl">
+						Project Idea Generator
+					</h1>
+					<p className="mx-auto max-w-2xl text-lg leading-relaxed text-gray-600">
+						Get inspired with AI-generated web development project ideas.
+						Perfect for skill building, portfolio projects, or your next big
+						venture.
+					</p>
+				</div>
 
-          <ActionButtons
-            content={currentContent}
-            onRegenerate={generateProjectIdea}
-            isLoading={isLoading}
-            isStreaming={streamingState.isStreaming}
-          />
-        </div>
+				{/* Main Content */}
+				<div className="space-y-8">
+					<div className="flex justify-center">
+						<ProjectIdeaDisplay
+							content={currentContent}
+							isLoading={isLoading}
+							isStreaming={streamingState.isStreaming}
+						/>
+					</div>
 
-        {/* Footer */}
-        <div className="text-center text-sm text-gray-500 pt-8">
-          <p>Powered by OpenAI • Built with React & Tailwind CSS</p>
-        </div>
-      </div>
-      
-      <Toaster />
-    </div>
-  );
+					<ActionButtons
+						content={currentContent}
+						isLoading={isLoading}
+						isStreaming={streamingState.isStreaming}
+						onRegenerate={generateProjectIdea}
+					/>
+				</div>
+
+				{/* Footer */}
+				<div className="pt-8 text-sm text-center text-gray-500">
+					<p>Powered by OpenAI • Built with React & Tailwind CSS</p>
+				</div>
+			</div>
+
+			<Toaster />
+		</div>
+	);
 }
 
 export default App;

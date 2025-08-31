@@ -4,31 +4,33 @@ A beautiful web application that generates creative web development project idea
 
 ## Features
 
-- **AI-Powered Generation**: Uses OpenAI's GPT model to create diverse, creative project ideas
-- **Streaming Text Effect**: Real-time progressive text display for an engaging user experience
-- **Copy to Markdown**: One-click copying of project ideas in properly formatted Markdown
-- **Responsive Design**: Optimized for mobile, tablet, and desktop devices
-- **Modern UI**: Clean, minimal design using shadcn/ui components
-- **Error Handling**: Comprehensive error handling with user-friendly messages
+-  **AI-Powered Generation**: Uses OpenAI's GPT model to create diverse, creative project ideas
+-  **Streaming Text Effect**: Real-time progressive text display for an engaging user experience
+-  **Copy to Markdown**: One-click copying of project ideas in properly formatted Markdown
+-  **Responsive Design**: Optimized for mobile, tablet, and desktop devices
+-  **Modern UI**: Clean, minimal design using shadcn/ui components
+-  **Error Handling**: Comprehensive error handling with user-friendly messages
 
 ## Setup Instructions
 
 ### Prerequisites
 
-- Node.js (version 16 or higher)
-- npm or yarn package manager
-- OpenAI API key
+-  Node.js (version 16 or higher)
+-  npm or yarn package manager
+-  OpenAI API key
 
 ### Installation
 
 1. Clone the repository and navigate to the project directory
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
 
 3. Set up environment variables:
+
    ```bash
    cp .env.example .env
    ```
@@ -49,6 +51,7 @@ A beautiful web application that generates creative web development project idea
 ### Development
 
 Start the development server:
+
 ```bash
 npm run dev
 ```
@@ -58,11 +61,13 @@ The application will be available at `http://localhost:5173`
 ### Building for Production
 
 Build the application:
+
 ```bash
 npm run build
 ```
 
 Preview the production build:
+
 ```bash
 npm run preview
 ```
@@ -92,12 +97,12 @@ src/
 
 ## Technologies Used
 
-- **React 18** - Modern React with hooks
-- **Vite** - Fast build tool and development server
-- **TypeScript** - Type-safe development
-- **Tailwind CSS** - Utility-first CSS framework
-- **shadcn/ui** - High-quality UI components
-- **OpenAI API** - AI-powered content generation
+-  **React 18** - Modern React with hooks
+-  **Vite** - Fast build tool and development server
+-  **TypeScript** - Type-safe development
+-  **Tailwind CSS** - Utility-first CSS framework
+-  **shadcn/ui** - High-quality UI components
+-  **OpenAI API** - AI-powered content generation
 
 ## Contributing
 
