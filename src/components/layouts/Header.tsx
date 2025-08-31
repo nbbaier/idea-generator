@@ -14,12 +14,12 @@ export function Header({
 	className = "",
 }: HeaderProps) {
 	return (
-		<div className={`space-y-4 text-center ${className}`}>
+		<div className={`space-y-4 text-center ${className} mb-4`}>
 			<h1 className="text-4xl font-bold tracking-tight text-gray-900 md:text-5xl">
 				{title}
 			</h1>
 			{description && (
-				<p className="mx-auto max-w-2xl text-lg leading-relaxed text-gray-600">
+				<p className="mx-auto max-w-2xl text-md leading-relaxed text-gray-600">
 					{description}
 				</p>
 			)}

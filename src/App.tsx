@@ -13,6 +13,28 @@ import { toast } from "@/hooks/use-toast";
 import { OpenAIService } from "@/lib/openai";
 import type { StreamingState } from "@/types";
 
+const FALLBACK_CONTENT = "";
+// `# Sample Project Idea
+
+// ## Description
+// A task management app that uses AI to automatically categorize and prioritize your to-do items based on deadlines, importance, and your personal productivity patterns.
+
+// ## Key Features
+// - **AI-powered task categorization** - Automatically sorts tasks by type and priority
+// - **Smart scheduling** - Suggests optimal times to work on specific tasks
+// - **Progress tracking** - Visual analytics of your productivity patterns
+// - **Team collaboration** - Share tasks and get AI insights on team workload
+// - **Integration ready** - Connect with calendar, email, and project management tools
+
+// ## Tech Stack
+// - **Frontend**: React with TypeScript and Tailwind CSS
+// - **Backend**: Node.js with Express or Next.js API routes
+// - **AI Integration**: OpenAI API for task analysis
+// - **Database**: PostgreSQL or MongoDB for data persistence
+
+// ## Complexity Level
+// Intermediate`;
+
 function App() {
 	const [projectIdea, setProjectIdea] = useState("");
 	const [streamingState, setStreamingState] = useState<StreamingState>({
@@ -35,6 +57,7 @@ function App() {
 					"Please add your OpenAI API key to the environment variables.",
 				variant: "destructive",
 			});
+			setProjectIdea(FALLBACK_CONTENT);
 			return;
 		}
 
@@ -82,6 +105,7 @@ function App() {
 				description: errorMessage,
 				variant: "destructive",
 			});
+			setProjectIdea(FALLBACK_CONTENT);
 		} finally {
 			setIsLoading(false);
 		}
@@ -101,7 +125,7 @@ function App() {
 			<Container>
 				<Header
 					title="Project Idea Generator"
-					description="Get inspired with AI-generated web development project ideas. Perfect for skill building, portfolio projects, or your next big venture."
+					description="Get inspired with AI-generated web development project ideas."
 				/>
 
 				<ContentArea>

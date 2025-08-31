@@ -8,7 +8,7 @@ type PageLayoutProps = {
 export function PageLayout({ children, className = "" }: PageLayoutProps) {
 	return (
 		<div
-			className={`px-4 py-12 min-h-screen from-gray-50 to-gray-100 bg-gradient-to-br ${className}`}
+			className={`w-full px-4 py-12 min-h-screen from-gray-50 to-gray-100 bg-gradient-to-br ${className}`}
 		>
 			{children}
 		</div>

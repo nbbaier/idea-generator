@@ -4,6 +4,10 @@ export class OpenAIService {
 
 	constructor(apiKey: string) {
 		this.apiKey = apiKey;
+		console.log(
+			"OpenAIService initialized with API key:",
+			apiKey ? `${apiKey.substring(0, 10)}...` : "undefined",
+		);
 	}
 
 	async generateProjectIdea(): Promise<ReadableStream<string>> {
@@ -32,6 +36,8 @@ export class OpenAIService {
 
 Make it innovative, practical, and inspiring. Vary the complexity and domain (e.g., productivity, entertainment, education, e-commerce, social, tools, etc.).`;
 
+		console.log("Making API request to OpenAI...");
+
 		const response = await fetch(`${this.baseUrl}/chat/completions`, {
 			method: "POST",
 			headers: {
@@ -53,8 +59,19 @@ Make it innovative, practical, and inspiring. Vary the complexity and domain (e.
 		});
 
 		if (!response.ok) {
-			throw new Error(`OpenAI API error: ${response.statusText}`);
+			const errorText = await response.text();
+			console.error(
+				"OpenAI API error:",
+				response.status,
+				response.statusText,
+				errorText,
+			);
+			throw new Error(
+				`OpenAI API error: ${response.status} ${response.statusText} - ${errorText}`,
+			);
 		}
+
+		console.log("OpenAI API response received, creating stream...");
 
 		const stream = new ReadableStream({
 			async start(controller) {
@@ -71,6 +88,7 @@ Make it innovative, practical, and inspiring. Vary the complexity and domain (e.
 						const { done, value } = await reader.read();
 
 						if (done) {
+							console.log("Stream reading completed");
 							controller.close();
 							break;
 						}
@@ -83,6 +101,7 @@ Make it innovative, practical, and inspiring. Vary the complexity and domain (e.
 								const data = line.slice(6);
 
 								if (data === "[DONE]") {
+									console.log("Stream marked as done");
 									controller.close();
 									return;
 								}
@@ -101,6 +120,7 @@ Make it innovative, practical, and inspiring. Vary the complexity and domain (e.
 						}
 					}
 				} catch (error) {
+					console.error("Stream error:", error);
 					controller.error(error);
 				}
 			},

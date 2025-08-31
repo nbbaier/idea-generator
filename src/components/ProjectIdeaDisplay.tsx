@@ -14,31 +14,12 @@ export function ProjectIdeaDisplay({
 	isLoading,
 }: ProjectIdeaDisplayProps) {
 	const [displayedContent, setDisplayedContent] = useState("");
-	const [currentIndex, setCurrentIndex] = useState(0);
 
 	useEffect(() => {
-		if (!isStreaming) {
+		if (content) {
 			setDisplayedContent(content);
-			setCurrentIndex(content.length);
-			return;
 		}
-
-		if (currentIndex < content.length) {
-			const timer = setTimeout(() => {
-				setDisplayedContent(content.slice(0, currentIndex + 1));
-				setCurrentIndex(currentIndex + 1);
-			}, 20); // Adjust speed of streaming effect
-
-			return () => clearTimeout(timer);
-		}
-	}, [content, currentIndex, isStreaming]);
-
-	useEffect(() => {
-		if (content !== displayedContent && !isStreaming) {
-			setCurrentIndex(0);
-			setDisplayedContent("");
-		}
-	}, [content, displayedContent, isStreaming]);
+	}, [content]);
 
 	if (isLoading) {
 		return (

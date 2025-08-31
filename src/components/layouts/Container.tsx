@@ -9,7 +9,7 @@ type ContainerProps = {
 export function Container({
 	children,
 	className = "",
-	size = "lg",
+	size = "md",
 }: ContainerProps) {
 	const sizeClasses = {
 		sm: "max-w-2xl",
