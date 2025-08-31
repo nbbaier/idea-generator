@@ -1,48 +1,42 @@
 {
-   "files": [],
-   "references": [
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    },
+    "target": "es5",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
       {
-         "path": "./tsconfig.app.json"
+        "name": "next"
       }
-   ],
-   "compilerOptions": {
-      "composite": true,
-      "baseUrl": ".",
-      "paths": {
-         "@/*": [
-            "./src/*"
-         ]
-      },
-      "esModuleInterop": true,
-      "jsx": "preserve",
-      "strictNullChecks": true,
-      "allowJs": true,
-      "forceConsistentCasingInFileNames": true,
-      "incremental": true,
-      "plugins": [
-         {
-            "name": "next"
-         }
-      ],
-      "target": "esnext",
-      "lib": [
-         "dom",
-         "dom.iterable",
-         "esnext"
-      ],
-      "skipLibCheck": true,
-      "strict": false,
-      "noEmit": true,
-      "module": "esnext",
-      "moduleResolution": "node",
-      "resolveJsonModule": true,
-      "isolatedModules": true
-   },
-   "include": [
-      "./dist/types/**/*.ts",
-      "./next-env.d.ts"
-   ],
-   "exclude": [
-      "./node_modules"
-   ]
+    ]
+  },
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "next-env.d.ts",
+    "./dist/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

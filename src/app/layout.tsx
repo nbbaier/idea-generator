@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "../index.css";
 
 export const metadata: Metadata = {
 	title: "AI Project Idea Generator",
@@ -12,10 +13,7 @@ export default function RootLayout({
 }) {
 	return (
 		<html lang="en">
-			<body>
-				{/** biome-ignore lint/correctness/useUniqueElementIds: don't care about this problem */}
-				<div id="root">{children}</div>
-			</body>
+			<body>{children}</body>
 		</html>
 	);
 }
