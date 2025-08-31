@@ -45,12 +45,12 @@ function App() {
 	const [isLoading, setIsLoading] = useState(false);
 
 	const openaiService = useMemo(
-		() => new OpenAIService(import.meta.env.VITE_OPENAI_API_KEY),
+		() => new OpenAIService(process.env.VITE_OPENAI_API_KEY),
 		[],
 	);
 
 	const generateProjectIdea = useCallback(async () => {
-		if (!import.meta.env.VITE_OPENAI_API_KEY) {
+		if (!process.env.VITE_OPENAI_API_KEY) {
 			toast({
 				title: "API Key Required",
 				description:
