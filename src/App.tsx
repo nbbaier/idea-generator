@@ -1,5 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ActionButtons } from "@/components/ActionButtons";
+import {
+	Container,
+	ContentArea,
+	Footer,
+	Header,
+	PageLayout,
+} from "@/components/layouts";
 import { ProjectIdeaDisplay } from "@/components/ProjectIdeaDisplay";
 import { Toaster } from "@/components/ui/toaster";
 import { toast } from "@/hooks/use-toast";
@@ -90,22 +97,14 @@ function App() {
 		: projectIdea;
 
 	return (
-		<div className="px-4 py-12 min-h-screen from-gray-50 to-gray-100 bg-gradient-to-br">
-			<div className="mx-auto space-y-8 max-w-4xl">
-				{/* Header */}
-				<div className="space-y-4 text-center">
-					<h1 className="text-4xl font-bold tracking-tight text-gray-900 md:text-5xl">
-						Project Idea Generator
-					</h1>
-					<p className="mx-auto max-w-2xl text-lg leading-relaxed text-gray-600">
-						Get inspired with AI-generated web development project ideas.
-						Perfect for skill building, portfolio projects, or your next big
-						venture.
-					</p>
-				</div>
+		<PageLayout>
+			<Container>
+				<Header
+					title="Project Idea Generator"
+					description="Get inspired with AI-generated web development project ideas. Perfect for skill building, portfolio projects, or your next big venture."
+				/>
 
-				{/* Main Content */}
-				<div className="space-y-8">
+				<ContentArea>
 					<div className="flex justify-center">
 						<ProjectIdeaDisplay
 							content={currentContent}
@@ -120,16 +119,15 @@ function App() {
 						isStreaming={streamingState.isStreaming}
 						onRegenerate={generateProjectIdea}
 					/>
-				</div>
+				</ContentArea>
 
-				{/* Footer */}
-				<div className="pt-8 text-sm text-center text-gray-500">
+				<Footer>
 					<p>Powered by OpenAI • Built with React & Tailwind CSS</p>
-				</div>
-			</div>
+				</Footer>
+			</Container>
 
 			<Toaster />
-		</div>
+		</PageLayout>
 	);
 }
 
