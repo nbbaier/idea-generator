@@ -90,7 +90,7 @@ function App() {
 		: projectIdea;
 
 	return (
-		<div className="px-4 py-12 min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+		<div className="px-4 py-12 min-h-screen from-gray-50 to-gray-100 bg-gradient-to-br">
 			<div className="mx-auto space-y-8 max-w-4xl">
 				{/* Header */}
 				<div className="space-y-4 text-center">
