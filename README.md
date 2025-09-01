@@ -1,6 +1,6 @@
 # AI Project Idea Generator
 
-A beautiful web application that generates creative web development project ideas using AI. Built with React, Vite, Tailwind CSS, and OpenAI.
+A beautiful web application that generates creative web development project ideas using AI. Built with Next.js, React, Tailwind CSS, and OpenAI.
 
 ## Features
 
@@ -15,8 +15,8 @@ A beautiful web application that generates creative web development project idea
 
 ### Prerequisites
 
--  Node.js (version 16 or higher)
--  npm or yarn package manager
+-  Node.js (version 18 or higher) or Bun runtime
+-  npm, yarn, or bun package manager
 -  OpenAI API key
 
 ### Installation
@@ -26,18 +26,17 @@ A beautiful web application that generates creative web development project idea
 2. Install dependencies:
 
    ```bash
+   bun install
+   # or
    npm install
    ```
 
 3. Set up environment variables:
 
-   ```bash
-   cp .env.example .env
-   ```
+   Create a `.env.local` file in the root directory and add your OpenAI API key:
 
-4. Add your OpenAI API key to the `.env` file:
    ```
-   VITE_OPENAI_API_KEY=your_openai_api_key_here
+   OPENAI_API_KEY=your_openai_api_key_here
    ```
 
 ### Getting Your OpenAI API Key
@@ -53,24 +52,47 @@ A beautiful web application that generates creative web development project idea
 Start the development server:
 
 ```bash
+bun run dev
+# or
 npm run dev
 ```
 
-The application will be available at `http://localhost:5173`
+The application will be available at `http://localhost:3000`
 
 ### Building for Production
 
 Build the application:
 
 ```bash
+bun run build
+# or
 npm run build
 ```
 
-Preview the production build:
+Start the production server:
 
 ```bash
-npm run preview
+bun run start
+# or
+npm run start
 ```
+
+## Deployment
+
+This application uses Next.js API routes and requires a platform that supports server-side rendering or serverless functions. Recommended deployment options:
+
+### Vercel (Recommended)
+
+-  Automatic deployment with zero configuration
+-  Built-in support for Next.js API routes
+-  Simply connect your GitHub repository to Vercel
+
+### Other Platforms
+
+-  Railway, Render, or any platform supporting Node.js applications
+-  Ensure the platform can run both the static frontend and API routes
+
+**Note**: The API routes (`/api/generate` and `/api/chat`) require server-side runtime and cannot be deployed as a purely static site. If you need static deployment, consider moving the AI functionality to a separate backend service.
 
 ## Usage
 
@@ -83,26 +105,33 @@ npm run preview
 
 ```
 src/
+├── app/
+│   ├── api/
+│   │   ├── generate/route.ts     # Project idea generation API
+│   │   └── chat/route.ts         # Chat API (future use)
+│   ├── layout.tsx                # Root layout component
+│   └── page.tsx                  # Main application page
 ├── components/
-│   ├── ProjectIdeaDisplay.tsx    # Main display component with streaming effect
-│   ├── ActionButtons.tsx         # Copy and regenerate buttons
+│   ├── layouts/                  # Layout components (Header, Footer, etc.)
+│   ├── response.tsx              # AI response display with streaming
 │   └── ui/                       # shadcn/ui components
+├── hooks/
+│   └── use-toast.ts              # Toast notification hook
 ├── lib/
-│   └── openai.ts                 # OpenAI API integration
-├── types/
-│   └── index.ts                  # TypeScript type definitions
-├── App.tsx                       # Main application component
-└── main.tsx                      # Application entry point
+│   └── utils.ts                  # Utility functions
+└── types/
+    └── index.ts                  # TypeScript type definitions
 ```
 
 ## Technologies Used
 
--  **React 18** - Modern React with hooks
--  **Vite** - Fast build tool and development server
+-  **Next.js 15** - React framework with API routes and streaming
+-  **React 18** - Modern React with hooks and Suspense
 -  **TypeScript** - Type-safe development
 -  **Tailwind CSS** - Utility-first CSS framework
 -  **shadcn/ui** - High-quality UI components
 -  **OpenAI API** - AI-powered content generation
+-  **Vercel AI SDK** - Streaming AI responses
 
 ## Contributing
 
