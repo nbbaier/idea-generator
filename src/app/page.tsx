@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCompletion } from "@ai-sdk/react";
+import { useCallback } from "react";
 import { ActionButtons } from "@/components/ActionButtons";
 import {
 	Container,
@@ -12,95 +13,22 @@ import {
 import { ProjectIdeaDisplay } from "@/components/ProjectIdeaDisplay";
 import { Toaster } from "@/components/ui/toaster";
 import { toast } from "@/hooks/use-toast";
-import { OpenAIService } from "@/lib/openai";
-import type { StreamingState } from "@/types";
-
-const FALLBACK_CONTENT = "";
 
 export default function Page() {
-	const [projectIdea, setProjectIdea] = useState("");
-	const [streamingState, setStreamingState] = useState<StreamingState>({
-		isStreaming: false,
-		streamedText: "",
-		error: null,
-	});
-	const [isLoading, setIsLoading] = useState(false);
-
-	const openaiService = useMemo(
-		() => new OpenAIService(process.env.NEXT_PUBLIC_OPENAI_API_KEY || ""),
-		[],
-	);
-
-	const generateProjectIdea = useCallback(async () => {
-		if (!process.env.NEXT_PUBLIC_OPENAI_API_KEY) {
-			toast({
-				title: "API Key Required",
-				description:
-					"Please add your OpenAI API key to the environment variables.",
-				variant: "destructive",
-			});
-			setProjectIdea(FALLBACK_CONTENT);
-			return;
-		}
-
-		setIsLoading(true);
-		setStreamingState({
-			isStreaming: true,
-			streamedText: "",
-			error: null,
-		});
-		setProjectIdea("");
-
-		try {
-			const stream = await openaiService.generateProjectIdea();
-			const reader = stream.getReader();
-			let accumulatedText = "";
-
-			while (true) {
-				const { done, value } = await reader.read();
-
-				if (done) {
-					setStreamingState((prev) => ({
-						...prev,
-						isStreaming: false,
-					}));
-					setProjectIdea(accumulatedText);
-					break;
-				}
-
-				accumulatedText += value;
-				setStreamingState((prev) => ({
-					...prev,
-					streamedText: accumulatedText,
-				}));
-			}
-		} catch (error) {
-			const errorMessage =
-				error instanceof Error ? error.message : "An unknown error occurred";
-			setStreamingState({
-				isStreaming: false,
-				streamedText: "",
-				error: errorMessage,
-			});
+	const { completion, isLoading, complete } = useCompletion({
+		api: "/api/generate",
+		onError: (error: Error) => {
 			toast({
 				title: "Generation Failed",
-				description: errorMessage,
+				description: error.message,
 				variant: "destructive",
 			});
-			setProjectIdea(FALLBACK_CONTENT);
-		} finally {
-			setIsLoading(false);
-		}
-	}, [openaiService]);
+		},
+	});
 
-	// Generate initial project idea on mount
-	useEffect(() => {
-		generateProjectIdea();
-	}, [generateProjectIdea]);
-
-	const currentContent = streamingState.isStreaming
-		? streamingState.streamedText
-		: projectIdea;
+	const generateProjectIdea = useCallback(async () => {
+		await complete("");
+	}, [complete]);
 
 	return (
 		<PageLayout>
@@ -112,19 +40,41 @@ export default function Page() {
 
 				<ContentArea>
 					<div className="flex justify-center">
-						<ProjectIdeaDisplay
-							content={currentContent}
-							isLoading={isLoading}
-							isStreaming={streamingState.isStreaming}
-						/>
+						{!completion && !isLoading ? (
+							<div className="text-center space-y-4">
+								<h2 className="text-2xl font-bold text-gray-900">
+									Welcome to Project Idea Generator
+								</h2>
+								<p className="text-gray-600 max-w-md">
+									Get inspired with AI-generated web development project ideas.
+									Click the button below to generate your first project idea!
+								</p>
+								<button
+									type="button"
+									onClick={generateProjectIdea}
+									disabled={isLoading}
+									className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+								>
+									{isLoading ? "Generating..." : "Generate Project Idea"}
+								</button>
+							</div>
+						) : (
+							<ProjectIdeaDisplay
+								content={completion}
+								isLoading={isLoading}
+								isStreaming={isLoading}
+							/>
+						)}
 					</div>
 
-					<ActionButtons
-						content={currentContent}
-						isLoading={isLoading}
-						isStreaming={streamingState.isStreaming}
-						onRegenerate={generateProjectIdea}
-					/>
+					{completion && (
+						<ActionButtons
+							content={completion}
+							isLoading={isLoading}
+							isStreaming={isLoading}
+							onRegenerate={generateProjectIdea}
+						/>
+					)}
 				</ContentArea>
 
 				<Footer>

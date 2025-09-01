@@ -5,9 +5,3 @@ export type ProjectIdea = {
 	techStack: string[];
 	complexity: "Beginner" | "Intermediate" | "Advanced";
 };
-
-export type StreamingState = {
-	isStreaming: boolean;
-	streamedText: string;
-	error: string | null;
-};
