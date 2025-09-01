@@ -5,3 +5,11 @@ export type ProjectIdea = {
 	techStack: string[];
 	complexity: "Beginner" | "Intermediate" | "Advanced";
 };
+
+export type GenerateRequest = {
+	topic?: string;
+	domain?: string;
+	difficulty?: DifficultyLevel;
+};
+
+export type DifficultyLevel = "Beginner" | "Intermediate" | "Advanced";
