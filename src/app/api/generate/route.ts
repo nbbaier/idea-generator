@@ -1,5 +1,5 @@
 import { openai } from "@ai-sdk/openai";
-import { streamText } from "ai";
+import { type CoreMessage, streamText } from "ai";
 
 export const maxDuration = 30;
 
@@ -133,7 +133,7 @@ export async function POST(request: Request) {
 		}
 
 		// Parse and validate request body
-		let messages: Array<{ role: string; content: string }> = [];
+		let messages: CoreMessage[] = [];
 		try {
 			const body = await request.json();
 			messages = body.messages || [];
@@ -165,11 +165,22 @@ export async function POST(request: Request) {
 			);
 		}
 
+		// Ensure we have at least one message for the AI SDK
+		const finalMessages: CoreMessage[] =
+			messages.length > 0
+				? messages
+				: [
+						{
+							role: "user" as const,
+							content: "Generate a creative web development project idea.",
+						},
+					];
+
 		// Call OpenAI with chat messages
 		const result = streamText({
 			model: openai(config.model),
 			system: getSystemPrompt(),
-			messages,
+			messages: finalMessages,
 			maxOutputTokens: config.maxTokens,
 			temperature: config.temperature,
 		});

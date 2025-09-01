@@ -1,5 +1,5 @@
 import { openai } from "@ai-sdk/openai";
-import { streamText } from "ai";
+import { type ModelMessage, streamText } from "ai";
 
 export const maxDuration = 30;
 
@@ -133,7 +133,7 @@ export async function POST(request: Request) {
 		}
 
 		// Parse and validate request body
-		let messages: Array<{ role: string; content: string }> = [];
+		let messages: ModelMessage[] = [];
 		try {
 			const body = await request.json();
 			messages = body.messages || [];
