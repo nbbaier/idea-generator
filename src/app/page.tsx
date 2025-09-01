@@ -69,6 +69,25 @@ export default function Page() {
 		}
 	}, [resultMarkdown]);
 
+	const streamMockResponse = useCallback(async () => {
+		const mockContent =
+			"# Hello World\n\nThis is **streaming** markdown!\n\n- this is an unordered list\n1. this is an ordered list";
+
+		setIsStreaming(true);
+		setResultMarkdown("");
+
+		const words = mockContent.split(" ");
+		let currentText = "";
+
+		for (let i = 0; i < words.length; i++) {
+			await new Promise((resolve) => setTimeout(resolve, 50));
+			currentText += (i > 0 ? " " : "") + words[i];
+			setResultMarkdown(currentText);
+		}
+
+		setIsStreaming(false);
+	}, []);
+
 	return (
 		<PageLayout>
 			<Container>
@@ -79,8 +98,14 @@ export default function Page() {
 
 				<ContentArea>
 					<div className="w-full max-w-3xl mx-auto space-y-6">
-						<div className="min-h-[300px]">
-							<AIResponse>{resultMarkdown}</AIResponse>
+						<div className="min-h-[300px] border border-gray-200 rounded-lg p-6 bg-gray-50/50">
+							{resultMarkdown ? (
+								<AIResponse>{resultMarkdown}</AIResponse>
+							) : (
+								<div className="flex items-center justify-center h-full text-gray-400 text-sm">
+									Click "Generate Project Idea" to get started
+								</div>
+							)}
 						</div>
 
 						<div className="flex justify-center">
@@ -94,6 +119,15 @@ export default function Page() {
 									aria-label="Generate Project Idea"
 								>
 									{isStreaming ? "Generating..." : "Generate Project Idea"}
+								</button>
+								<button
+									type="button"
+									onClick={streamMockResponse}
+									disabled={isStreaming}
+									className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+									aria-label="Load Mock Response"
+								>
+									{isStreaming ? "Loading..." : "Load Mock Response"}
 								</button>
 								<button
 									type="button"

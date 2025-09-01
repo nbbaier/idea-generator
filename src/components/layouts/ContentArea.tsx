@@ -9,7 +9,7 @@ type ContentAreaProps = {
 export function ContentArea({
 	children,
 	className = "",
-	spacing = "lg",
+	spacing = "md",
 }: ContentAreaProps) {
 	const spacingClasses = {
 		sm: "space-y-4",
