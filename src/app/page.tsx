@@ -1,8 +1,9 @@
 "use client";
 
-import { useCompletion } from "@ai-sdk/react";
+import { useChat } from "@ai-sdk/react";
 import { useCallback } from "react";
 import { ActionButtons } from "@/components/ActionButtons";
+import { Conversation, ConversationContent } from "@/components/conversation";
 import {
 	Container,
 	ContentArea,
@@ -10,13 +11,13 @@ import {
 	Header,
 	PageLayout,
 } from "@/components/layouts";
-import { ProjectIdeaDisplay } from "@/components/ProjectIdeaDisplay";
+import { Message, MessageContent } from "@/components/message";
+import { Response as AIResponse } from "@/components/response";
 import { Toaster } from "@/components/ui/toaster";
 import { toast } from "@/hooks/use-toast";
 
 export default function Page() {
-	const { completion, isLoading, complete } = useCompletion({
-		api: "/api/generate",
+	const { messages, status, sendMessage } = useChat({
 		onError: (error: Error) => {
 			toast({
 				title: "Generation Failed",
@@ -27,8 +28,10 @@ export default function Page() {
 	});
 
 	const generateProjectIdea = useCallback(async () => {
-		await complete("");
-	}, [complete]);
+		await sendMessage({
+			text: "Generate a creative web development project idea",
+		});
+	}, [sendMessage]);
 
 	return (
 		<PageLayout>
@@ -39,8 +42,8 @@ export default function Page() {
 				/>
 
 				<ContentArea>
-					<div className="flex justify-center">
-						{!completion && !isLoading ? (
+					{messages.length === 0 ? (
+						<div className="flex justify-center">
 							<div className="text-center space-y-4">
 								<h2 className="text-2xl font-bold text-gray-900">
 									Welcome to Project Idea Generator
@@ -52,28 +55,45 @@ export default function Page() {
 								<button
 									type="button"
 									onClick={generateProjectIdea}
-									disabled={isLoading}
+									disabled={status === "submitted" || status === "streaming"}
 									className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
 								>
-									{isLoading ? "Generating..." : "Generate Project Idea"}
+									{status === "submitted" || status === "streaming"
+										? "Generating..."
+										: "Generate Project Idea"}
 								</button>
 							</div>
-						) : (
-							<ProjectIdeaDisplay
-								content={completion}
-								isLoading={isLoading}
-								isStreaming={isLoading}
-							/>
-						)}
-					</div>
+						</div>
+					) : (
+						<div className="w-full max-w-3xl mx-auto">
+							<Conversation className="min-h-[400px]">
+								<ConversationContent>
+									{messages.map((message) => (
+										<Message key={message.id} from={message.role}>
+											<MessageContent>
+												<AIResponse>
+													{message.parts
+														.filter((part) => part.type === "text")
+														.map((part) => part.text)
+														.join("")}
+												</AIResponse>
+											</MessageContent>
+										</Message>
+									))}
+								</ConversationContent>
+							</Conversation>
 
-					{completion && (
-						<ActionButtons
-							content={completion}
-							isLoading={isLoading}
-							isStreaming={isLoading}
-							onRegenerate={generateProjectIdea}
-						/>
+							<ActionButtons
+								messages={messages}
+								isLoading={status === "submitted" || status === "streaming"}
+								onRegenerate={() =>
+									sendMessage({
+										text: "Generate another creative web development project idea",
+									})
+								}
+								onNewIdea={generateProjectIdea}
+							/>
+						</div>
 					)}
 				</ContentArea>
 

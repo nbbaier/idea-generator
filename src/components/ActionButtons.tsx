@@ -1,21 +1,23 @@
+import type { UIMessage } from "ai";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 
 type ActionButtonsProps = {
-	content: string;
+	messages: UIMessage[];
 	onRegenerate: () => void;
+	onNewIdea: () => void;
 	isLoading: boolean;
-	isStreaming: boolean;
 };
 
 export function ActionButtons({
-	content,
+	messages,
 	onRegenerate,
+	onNewIdea,
 	isLoading,
-	isStreaming,
 }: ActionButtonsProps) {
 	const handleCopyToMarkdown = async () => {
-		if (!content.trim()) {
+		const assistantMessages = messages.filter((m) => m.role === "assistant");
+		if (assistantMessages.length === 0) {
 			toast({
 				title: "Nothing to copy",
 				description: "Generate a project idea first!",
@@ -24,7 +26,13 @@ export function ActionButtons({
 			return;
 		}
 
+		const lastAssistantMessage =
+			assistantMessages[assistantMessages.length - 1];
 		try {
+			const content = lastAssistantMessage.parts
+				.filter((part) => part.type === "text")
+				.map((part) => part.text)
+				.join("");
 			await navigator.clipboard.writeText(content);
 			toast({
 				title: "Copied to clipboard!",
@@ -40,17 +48,24 @@ export function ActionButtons({
 	};
 
 	const handleRegenerate = () => {
-		if (isLoading || isStreaming) {
+		if (isLoading) {
 			return;
 		}
 		onRegenerate();
 	};
 
+	const handleNewIdea = () => {
+		if (isLoading) {
+			return;
+		}
+		onNewIdea();
+	};
+
 	return (
-		<div className="flex justify-center gap-4">
+		<div className="flex justify-center gap-4 mt-6">
 			<Button
 				className="min-w-[160px] transition-all duration-200 hover:bg-gray-50"
-				disabled={!content.trim() || isStreaming}
+				disabled={messages.length === 0 || isLoading}
 				onClick={handleCopyToMarkdown}
 				size="lg"
 				variant="outline"
@@ -59,11 +74,20 @@ export function ActionButtons({
 			</Button>
 			<Button
 				className="min-w-[160px] transition-all duration-200"
-				disabled={isLoading || isStreaming}
+				disabled={isLoading}
 				onClick={handleRegenerate}
 				size="lg"
+				variant="outline"
 			>
-				{isLoading || isStreaming ? "Generating..." : "Regenerate"}
+				{isLoading ? "Regenerating..." : "Regenerate"}
+			</Button>
+			<Button
+				className="min-w-[160px] transition-all duration-200"
+				disabled={isLoading}
+				onClick={handleNewIdea}
+				size="lg"
+			>
+				{isLoading ? "Generating..." : "New Idea"}
 			</Button>
 		</div>
 	);
