@@ -1,9 +1,6 @@
 "use client";
 
-import { useChat } from "@ai-sdk/react";
-import { useCallback } from "react";
-import { ActionButtons } from "@/components/ActionButtons";
-import { Conversation, ConversationContent } from "@/components/conversation";
+import { useCallback, useState } from "react";
 import {
 	Container,
 	ContentArea,
@@ -11,27 +8,66 @@ import {
 	Header,
 	PageLayout,
 } from "@/components/layouts";
-import { Message, MessageContent } from "@/components/message";
 import { Response as AIResponse } from "@/components/response";
 import { Toaster } from "@/components/ui/toaster";
 import { toast } from "@/hooks/use-toast";
 
 export default function Page() {
-	const { messages, status, sendMessage } = useChat({
-		onError: (error: Error) => {
-			toast({
-				title: "Generation Failed",
-				description: error.message,
-				variant: "destructive",
-			});
-		},
-	});
+	const [resultMarkdown, setResultMarkdown] = useState("");
+	const [isStreaming, setIsStreaming] = useState(false);
 
 	const generateProjectIdea = useCallback(async () => {
-		await sendMessage({
-			text: "Generate a creative web development project idea",
-		});
-	}, [sendMessage]);
+		try {
+			setIsStreaming(true);
+			setResultMarkdown("");
+			const response = await fetch("/api/generate", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ messages: [] }),
+			});
+			if (!response.ok || !response.body) {
+				throw new Error("Failed to start streaming response");
+			}
+			const reader = response.body.getReader();
+			const decoder = new TextDecoder();
+			while (true) {
+				const { done, value } = await reader.read();
+				if (done) break;
+				setResultMarkdown(
+					(prev) => prev + decoder.decode(value, { stream: true }),
+				);
+			}
+			// Flush any remaining decoded bytes after the stream ends
+			setResultMarkdown((prev) => prev + decoder.decode());
+		} catch (error: unknown) {
+			const message = error instanceof Error ? error.message : "Unknown error";
+			toast({
+				title: "Generation Failed",
+				description: message,
+				variant: "destructive",
+			});
+		} finally {
+			setIsStreaming(false);
+		}
+	}, []);
+
+	const handleCopyMarkdown = useCallback(async () => {
+		if (!resultMarkdown) return;
+		try {
+			await navigator.clipboard.writeText(resultMarkdown);
+			toast({
+				title: "Copied",
+				description: "Markdown copied to clipboard.",
+			});
+		} catch (error: unknown) {
+			const message = error instanceof Error ? error.message : "Unknown error";
+			toast({
+				title: "Copy Failed",
+				description: message,
+				variant: "destructive",
+			});
+		}
+	}, [resultMarkdown]);
 
 	return (
 		<PageLayout>
@@ -42,59 +78,35 @@ export default function Page() {
 				/>
 
 				<ContentArea>
-					{messages.length === 0 ? (
+					<div className="w-full max-w-3xl mx-auto space-y-6">
+						<div className="min-h-[300px]">
+							<AIResponse>{resultMarkdown}</AIResponse>
+						</div>
+
 						<div className="flex justify-center">
-							<div className="text-center space-y-4">
-								<h2 className="text-2xl font-bold text-gray-900">
-									Welcome to Project Idea Generator
-								</h2>
-								<p className="text-gray-600 max-w-md">
-									Get inspired with AI-generated web development project ideas.
-									Click the button below to generate your first project idea!
-								</p>
+							<div className="flex gap-3">
 								<button
 									type="button"
 									onClick={generateProjectIdea}
-									disabled={status === "submitted" || status === "streaming"}
+									disabled={isStreaming}
+									aria-busy={isStreaming}
 									className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+									aria-label="Generate Project Idea"
 								>
-									{status === "submitted" || status === "streaming"
-										? "Generating..."
-										: "Generate Project Idea"}
+									{isStreaming ? "Generating..." : "Generate Project Idea"}
+								</button>
+								<button
+									type="button"
+									onClick={handleCopyMarkdown}
+									disabled={!resultMarkdown}
+									className="px-6 py-3 border border-gray-300 text-gray-700 bg-white rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+									aria-label="Copy to Markdown"
+								>
+									Copy to Markdown
 								</button>
 							</div>
 						</div>
-					) : (
-						<div className="w-full max-w-3xl mx-auto">
-							<Conversation className="min-h-[400px]">
-								<ConversationContent>
-									{messages.map((message) => (
-										<Message key={message.id} from={message.role}>
-											<MessageContent>
-												<AIResponse>
-													{message.parts
-														.filter((part) => part.type === "text")
-														.map((part) => part.text)
-														.join("")}
-												</AIResponse>
-											</MessageContent>
-										</Message>
-									))}
-								</ConversationContent>
-							</Conversation>
-
-							<ActionButtons
-								messages={messages}
-								isLoading={status === "submitted" || status === "streaming"}
-								onRegenerate={() =>
-									sendMessage({
-										text: "Generate another creative web development project idea",
-									})
-								}
-								onNewIdea={generateProjectIdea}
-							/>
-						</div>
-					)}
+					</div>
 				</ContentArea>
 
 				<Footer>
