@@ -1,9 +1,13 @@
 ### Stage 1: UI Refactor Skeleton
 
+Status: Completed
+
 #### Goals
 
 -  Replace transcript with single central result view scaffold.
 -  Keep existing layout components intact.
+-  Wire Generate to POST to `/api/generate` and stream into `resultMarkdown`.
+-  Remove transcript UI and `ActionButtons` usage from `page.tsx`.
 
 #### Scope
 
@@ -15,12 +19,14 @@
 
 #### Steps
 
-1. Create state in `page.tsx`: `const [resultMarkdown, setResultMarkdown] = useState(""); const [isStreaming, setIsStreaming] = useState(false);`
-2. Remove `Conversation`/`Message` render; place `<Response>{resultMarkdown}</Response>` in central area.
-3. Ensure initial empty state renders a friendly CTA area.
+1. Introduce state in `page.tsx`: `resultMarkdown` and `isStreaming`.
+2. Implement `generateProjectIdea` to `POST /api/generate`, read the `ReadableStream`, and append decoded chunks into `resultMarkdown`; toggle `isStreaming` during the operation.
+3. Render a centered `<Response>{resultMarkdown}</Response>` area for the single result.
+4. Remove `Conversation`/`Message` transcript and `ActionButtons` from `page.tsx`.
 
 #### Acceptance Criteria
 
--  The page renders a single central area that will hold Markdown.
--  No transcript bubbles are present anywhere.
+-  A single central area streams Markdown content live into view.
+-  No transcript bubbles or `ActionButtons` are present anywhere.
+-  Generate is disabled while `isStreaming` is true.
 -  Lints/build succeed; no unused imports.
