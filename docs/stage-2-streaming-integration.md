@@ -2,13 +2,13 @@
 
 #### Goals
 
--  Wire Generate to stream text into `resultMarkdown`.
--  Prefer direct POST to `/api/generate` and stream.
+- Wire Generate to stream text into `resultMarkdown`.
+- Prefer direct POST to `/api/generate` and stream.
 
 #### Scope
 
--  `src/app/page.tsx`
--  `src/app/api/generate/route.ts` (no changes expected)
+- `src/app/page.tsx`
+- `src/app/api/generate/route.ts` (no changes expected)
 
 #### Steps
 
@@ -20,6 +20,6 @@
 
 #### Acceptance Criteria
 
--  Clicking Generate streams a new idea into the central area. (Met)
--  Generate is disabled while streaming. (Met)
--  No reliance on chat transcript/history. (Met)
+- Clicking Generate streams a new idea into the central area. (Met)
+- Generate is disabled while streaming. (Met)
+- No reliance on chat transcript/history. (Met)
