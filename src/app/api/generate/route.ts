@@ -1,5 +1,5 @@
 import { openai } from "@ai-sdk/openai";
-import { type CoreMessage, streamText } from "ai";
+import { type ModelMessage, streamText } from "ai";
 
 export const maxDuration = 30;
 
@@ -133,7 +133,7 @@ export async function POST(request: Request) {
 		}
 
 		// Parse and validate request body
-		let messages: CoreMessage[] = [];
+		let messages: ModelMessage[] = [];
 		try {
 			const body = await request.json();
 			messages = body.messages || [];
@@ -166,7 +166,7 @@ export async function POST(request: Request) {
 		}
 
 		// Ensure we have at least one message for the AI SDK
-		const finalMessages: CoreMessage[] =
+		const finalMessages: ModelMessage[] =
 			messages.length > 0
 				? messages
 				: [
